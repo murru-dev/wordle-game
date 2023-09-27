@@ -1,6 +1,7 @@
 # Wordle game
 
 Based on the [New York Times Wordle game](https://www.nytimes.com/games/wordle/index.html)
+
 Check this project live in [https://murru.github.io/wordle-game/](https://murru.github.io/wordle-game/)
 ## Technologies
 
