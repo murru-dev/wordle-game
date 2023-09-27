@@ -4,6 +4,12 @@
     <!-- Header -->
     <div class="w3-panel w3-black w3-center">
       <h1>Wordle</h1>
+      <button
+        class="w3-button w3-padding-small w3-amber"
+        @click="showModal = true"
+      >
+        How to play?
+      </button>
     </div>
     <!-- Header -->
 
@@ -34,12 +40,7 @@
       <!-- Word rows -->
 
       <!-- How to play modal trigger -->
-      <button
-        class="w3-button w3-amber w3-margin-top"
-        @click="showModal = true"
-      >
-        How to play?
-      </button>
+      
       <!-- How to play modal trigger -->
 
     </div>
@@ -74,14 +75,52 @@
     </div>
     <!-- Game result -->
 
+    <!-- Keyboard -->
+    <div
+      v-if="!showResult"
+      class="keyboard-wrapper w3-hide-large"
+    >
+      <div
+        v-for="(row, i) in virtualKeyboard"
+        :key="`key-${i}`"
+        class="keyboard-row"
+      >
+        <button
+          v-for="(key, j) in row"
+          :key="`key-${j}`"
+          class="w3-button w3-padding-small w3-gray"
+          @click="addChar(key)"
+        >
+          {{ key }}
+        </button>
+      </div>
+      <div class="keyboard-row">
+        <button
+          class="w3-button w3-padding-small w3-gray"
+          @click="nextAttempt"
+        >
+          ENTER
+        </button>
+        <button
+          class="w3-button w3-padding-small w3-gray"
+          @click="removeChar"
+        >
+          BACKSPACE
+        </button>
+      </div>
+    </div>
+    <!-- Keyboard -->
+
+    <!-- Footer -->
     <footer class="footer">
       Developed by <a target="_blank" href="https://www.linkedin.com/in/murrugarra/">Eng. Ernesto Murrugarra</a>
     </footer>
+    <!-- Footer -->
 
   </div>
 
   <!-- How to play modal -->
-  <div id="id01" class="w3-modal" :style="`display: ${ showModal ? `block` : `none`}`">
+  <div class="w3-modal" :style="`display: ${ showModal ? `block` : `none`}`">
     <div class="w3-modal-content w3-animate-top w3-card-4 w3-border">
       <header class="w3-container w3-amber w3-center"> 
         <span
@@ -114,7 +153,6 @@
 
 </template>
 <script lang="ts" setup>
-
 // Types
 type WordsArr = string[]
 type Board = WordsArr[]
@@ -129,6 +167,11 @@ const colors = ref<Board>([])
 const showResult = ref<boolean>(false) // To show result message
 const result = ref<boolean>(false) // To set game result
 const showModal = ref<boolean>(false) // To show result message
+const virtualKeyboard = ref<string[][]>([
+  ['Q', 'W', 'E', 'R', 'T', 'Y', 'U', 'I', 'O', 'P'],
+  ['A', 'S', 'D','F', 'G', 'H', 'J', 'K', 'L'],
+  ['Z', 'X', 'C', 'V', 'B', 'N', 'M']
+])
 
 // Methods
 const getEmptyPositions = (length: number): WordsArr => {
@@ -158,6 +201,67 @@ const resetGame = () => {
   }
 }
 
+const addChar = (char: string) => {
+  if (wordIndex.value < word.value.length) {
+    words.value[boardIndex.value][wordIndex.value] = char.toUpperCase()
+    wordIndex.value++
+  }
+}
+
+const removeChar = () => {
+
+  // Add pressed key to active array
+  if (wordIndex.value > 0) wordIndex.value--
+  words.value[boardIndex.value][wordIndex.value] = ''
+}
+
+const nextAttempt = () => {
+  // Check if word has been filled in the row position
+  if (wordIndex.value !== word.value.length) return
+
+  // Check if user guessed the word
+  if (words.value[boardIndex.value].join('') === word.value) {
+
+    // Fill colors array
+    for (let i = 0; i < colors.value[boardIndex.value].length; i++) {
+      colors.value[boardIndex.value][i] = 'w3-green'
+    }
+    result.value = true
+    showResult.value = true
+    return
+  }
+
+  // Check if there are attempts left
+  if (boardIndex.value < (words.value.length - 1)) {
+
+    for (let i = 0; i < words.value[boardIndex.value].length; i++) {
+
+      // Check if the letter is in the word to guess
+      if (!word.value.includes(words.value[boardIndex.value][i])) {
+        colors.value[boardIndex.value][i] = 'w3-dark-gray'
+        continue
+      }
+
+      // Check if the letter is in the same position in the word to guess
+      if (word.value[i] === words.value[boardIndex.value][i]) {
+        colors.value[boardIndex.value][i] = 'w3-green'
+      } else {
+        colors.value[boardIndex.value][i] = 'w3-indigo'
+      }
+    }
+    
+    // Increment board index
+    boardIndex.value++
+
+    // Reset wird index
+    wordIndex.value = 0
+  } else {
+    result.value = false
+    showResult.value = true
+    return
+  }
+}
+
 // Mounted hook
 onMounted(async () => {
 
@@ -172,70 +276,33 @@ onMounted(async () => {
 
   // Add event listeners
   window.addEventListener('keyup', ($event) => {
+
+    let char = $event.key // Get the character
+    if(
+      !/^[A-Za-z]+$/.test(char) ||
+      char === 'Tab' ||
+      char === 'Shift' ||
+      char === 'Alt' ||
+      char === 'Meta' ||
+      char === 'Control' ||
+      char === 'Escape' ||
+      char === 'Dead' ||
+      char === 'CapsLock'
+    ) return
     
     // If pressed key was "Enter"
-    if ($event.key === 'Enter') {
-
-      // Check if word has been filled in the row position
-      if (wordIndex.value !== word.value.length) return
-
-      // Check if user guessed the word
-      if (words.value[boardIndex.value].join('') === word.value) {
-
-        // Fill colors array
-        for (let i = 0; i < colors.value[boardIndex.value].length; i++) {
-          colors.value[boardIndex.value][i] = 'w3-green'
-        }
-        result.value = true
-        showResult.value = true
-        return
-      }
-
-      // Check if there are attempts left
-      if (boardIndex.value < (words.value.length - 1)) {
-
-        for (let i = 0; i < words.value[boardIndex.value].length; i++) {
-
-          // Check if the letter is in the word to guess
-          if (!word.value.includes(words.value[boardIndex.value][i])) {
-            colors.value[boardIndex.value][i] = 'w3-dark-gray'
-            continue
-          }
-
-          // Check if the letter is in the same position in the word to guess
-          if (word.value[i] === words.value[boardIndex.value][i]) {
-            colors.value[boardIndex.value][i] = 'w3-green'
-          } else {
-            colors.value[boardIndex.value][i] = 'w3-indigo'
-          }
-        }
-        
-        // Increment board index
-        boardIndex.value++
-
-        // Reset wird index
-        wordIndex.value = 0
-      } else {
-        result.value = false
-        showResult.value = true
-        return
-      }
-
+    if (char === 'Enter') {
+      nextAttempt()
       return
     }
 
-    if ($event.key === 'Backspace') {
-      // Add pressed key to active array
-      if (wordIndex.value > 0) wordIndex.value--
-      words.value[boardIndex.value][wordIndex.value] = ''
+    if (char === 'Backspace') {
+      removeChar()
       return
     }
 
     // Add letter key to active array position
-    if (wordIndex.value < word.value.length) {
-      words.value[boardIndex.value][wordIndex.value] = $event.key.toUpperCase()
-      wordIndex.value++
-    }
+    addChar(char)
   })
 })
 </script>
@@ -243,6 +310,7 @@ onMounted(async () => {
 <style>
 .full-height {
   height: 100vh;
+  overflow: auto
 }
 
 .board {
@@ -282,13 +350,31 @@ onMounted(async () => {
   width: 500px;
 }
 
+.keyboard-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 5px
+}
+
+.keyboard-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+}
+
 .footer {
   padding: 1em;
-  position: fixed;
-  left: 0;
-  bottom: 0;
   width: 100%;
   color: white;
   text-align: center;
+}
+
+@media (min-width: 414px) {
+  .footer {
+    left: 0;
+    bottom: 0;
+    position: fixed;
+  }
 }
 </style>
