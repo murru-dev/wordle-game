@@ -10,12 +10,14 @@
     <!-- Game Board -->
     <div class="board">
 
-      <!-- Word -->
+      <!-- Word rows -->
       <div
         v-for="(word, i) in words"
         :key="`row-${i}`"
       >
         <div class="word">
+
+          <!-- Word letters -->
           <div
             v-for="(letter, j) in word"
             class="w3-center letter-wrapper"
@@ -25,16 +27,20 @@
               <strong>{{ letter }}</strong>
             </h3>
           </div>
+          <!-- Word letters -->
+
         </div>
       </div>
-      <!-- Word -->
+      <!-- Word rows -->
 
+      <!-- How to play modal trigger -->
       <button
         class="w3-button w3-amber w3-margin-top"
         @click="showModal = true"
       >
         How to play?
       </button>
+      <!-- How to play modal trigger -->
 
     </div>
     <!-- Game Board -->
@@ -50,7 +56,7 @@
         :class="`w3-${ result ? `green` : `red`}`"
       >
         <h3 class="w3-center">
-          {{ result ? 'You have won!' : 'You have lost' }}
+          You have {{ result ? ' won!' : ' lost' }}
         </h3>
         <p class="w3-center">
           The word is
@@ -61,7 +67,7 @@
             class="w3-button w3-black"
             @click="resetGame"
           >
-            {{ result ? 'Play again' : 'Try again' }}
+            {{ result ? 'Play ' : 'Try ' }}again
           </button>
         </p>
       </div>
@@ -120,9 +126,6 @@ const words = ref<Board>([]) // Words game board
 const boardIndex = ref<number>(0) // Active index in bidimensional array, to fill one position at a time
 const wordIndex = ref<number>(0) // Active index in bidimensional array, to fill one position at a time
 const colors = ref<Board>([])
-/* w3-dark-gray
-w3-indigo
-w3-green */
 const showResult = ref<boolean>(false) // To show result message
 const result = ref<boolean>(false) // To set game result
 const showModal = ref<boolean>(false) // To show result message
