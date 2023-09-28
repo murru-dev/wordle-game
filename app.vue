@@ -308,6 +308,10 @@ onMounted(async () => {
 </script>
 
 <style>
+body {
+  touch-action: none !important;
+}
+
 .full-height {
   height: 100vh;
   overflow: auto
