@@ -2,11 +2,12 @@
 
 Based on the [New York Times Wordle game](https://www.nytimes.com/games/wordle/index.html)
 
-Check this project live in [https://murru.github.io/wordle-game/](https://murru.github.io/wordle-game/)
+Check this project live in [https://murru-dev.github.io/wordle-game/](https://murru-dev.github.io/wordle-game/)
+
 ## Technologies
 
-* Nuxt 3.
-* Typescript.
+- Nuxt 3.
+- Typescript.
 
 ## Setup
 
@@ -42,4 +43,5 @@ Locally preview production build:
 # npm
 npm run preview
 ```
+
 Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
